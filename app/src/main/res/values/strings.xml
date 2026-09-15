@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Did I Forget?</string>
+
+    <string name="home_title">¿Qué vas a hacer?</string>
+    <string name="home_new_activity">+ Nueva actividad</string>
+    <string name="home_empty_state">Aún no tienes actividades guardadas</string>
+
+    <string name="activity_manual_tab">Manual</string>
+    <string name="activity_ai_tab">IA</string>
+    <string name="activity_description_hint">Describe la actividad…</string>
+    <string name="activity_generate_button">Generar lista</string>
+    <string name="activity_save_button">Guardar</string>
+
+    <string name="checklist_title_prefix">Revisando</string>
+
+    <string name="result_all_ready_title">TODO LISTO</string>
+    <string name="result_all_ready_subtitle">Puedes salir</string>
+    <string name="result_missing_title">TE FALTA</string>
+
+    <string name="error_generic">Algo salió mal. Intenta de nuevo.</string>
+    <string name="error_ai_unavailable">No se pudo generar la lista con IA.</string>
+</resources>
