@@ -1,14 +1,21 @@
 package com.didiforget.data.model
 
-import java.time.Instant
-
+/**
+ * Registro histórico de una verificación (cuando el usuario revisó su
+ * checklist antes de salir). Permite, a futuro, mostrar estadísticas como
+ * "cuántas veces se te olvidó algo antes de ir a la universidad".
+ */
 data class CheckHistory(
-    val id: Long = 0,
+    val id: Long = 0L,
     val activityId: Long,
-    val completedItems: Int,
-    val totalItems: Int,
-    val checkedAt: Instant = Instant.now()
-) {
-    val isComplete: Boolean
-        get() = completedItems == totalItems
+    val timestamp: Long,
+    val result: CheckResult,
+    val missingItemNames: List<String> = emptyList()
+)
+
+/** Resultado mutuamente excluyente de una verificación. Una `sealed`/`enum`
+ * en vez de un `Boolean` deja explícito qué significa cada valor. */
+enum class CheckResult {
+    COMPLETE,
+    INCOMPLETE
 }
