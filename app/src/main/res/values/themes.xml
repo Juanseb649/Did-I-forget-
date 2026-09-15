@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- El theming real de Compose vive en ui/theme/Theme.kt (MaterialTheme de
+         Wear Compose). Este estilo XML solo cubre la ventana antes de que
+         Compose tome el control (splash / status bar). -->
+    <style name="Theme.DidIForget" parent="android:Theme.DeviceDefault">
+        <item name="android:colorBackground">#000000</item>
+    </style>
+</resources>
