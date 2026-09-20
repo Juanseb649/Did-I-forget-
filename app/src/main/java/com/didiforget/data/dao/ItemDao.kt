@@ -26,6 +26,9 @@ interface ItemDao {
     @Query("UPDATE items SET isChecked = :checked WHERE id = :itemId")
     suspend fun setChecked(itemId: Long, checked: Boolean)
 
+    @Query("SELECT * FROM items ORDER BY id ASC")
+    fun observeAll(): Flow<List<ItemEntity>>
+
     @Query("SELECT * FROM items WHERE activityId = :activityId ORDER BY id ASC")
     fun observeByActivity(activityId: Long): Flow<List<ItemEntity>>
 

@@ -7,7 +7,6 @@ import com.didiforget.data.database.entity.toEntity
 import com.didiforget.data.model.Activity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 
 /**
  * Implementación concreta respaldada por Room. `ActivityViewModel` y los
@@ -20,18 +19,15 @@ class ActivityRepositoryImpl(
     private val recentCache: RecentActivitiesCache = RecentActivitiesCache()
 ) : ActivityRepository {
 
+    // Observa ambas tablas: así Home se refresca también cuando cambian los
+    // items (marcar/eliminar), no solo cuando cambian las actividades. Agrupa
+    // los items en memoria por activityId (una sola consulta, sin N+1).
     override fun observeActivities(): Flow<List<Activity>> =
-        combine(activityDao.observeAll(), itemDaoAllItemsFlow()) { activities, itemsByActivity ->
+        combine(activityDao.observeAll(), itemDao.observeAll()) { activities, items ->
+            val itemsByActivity = items.groupBy { it.activityId }
             activities.map { entity ->
-                entity.toDomain(itemsByActivity[entity.id].orEmpty())
+                entity.toDomain(itemsByActivity[entity.id].orEmpty().map { it.toDomain() })
             }
-        }
-
-    // Agrupa TODOS los items una sola vez (evita N+1 queries) y arma un mapa
-    // activityId -> List<Item> en memoria.
-    private fun itemDaoAllItemsFlow() =
-        activityDao.observeAll().map { activities ->
-            activities.associate { it.id to itemDao.getByActivity(it.id).map { e -> e.toDomain() } }
         }
 
     override suspend fun getActivities(): List<Activity> {

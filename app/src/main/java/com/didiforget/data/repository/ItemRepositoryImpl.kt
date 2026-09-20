@@ -7,7 +7,15 @@ import com.didiforget.data.model.Item
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class ItemRepositoryImpl(private val itemDao: ItemDao) : ItemRepository {
+/**
+ * Comparte la [RecentActivitiesCache] con `ActivityRepositoryImpl`: cualquier
+ * cambio en un item deja obsoleta la actividad cacheada, así que se limpia
+ * (máx. 5 entradas, coste trivial).
+ */
+class ItemRepositoryImpl(
+    private val itemDao: ItemDao,
+    private val recentCache: RecentActivitiesCache = RecentActivitiesCache()
+) : ItemRepository {
 
     override fun observeItems(activityId: Long): Flow<List<Item>> =
         itemDao.observeByActivity(activityId).map { list -> list.map { it.toDomain() } }
@@ -25,9 +33,11 @@ class ItemRepositoryImpl(private val itemDao: ItemDao) : ItemRepository {
 
     override suspend fun setChecked(itemId: Long, checked: Boolean) {
         itemDao.setChecked(itemId, checked)
+        recentCache.clear()
     }
 
     override suspend fun deleteItem(item: Item) {
         itemDao.delete(item.toEntity())
+        recentCache.clear()
     }
 }

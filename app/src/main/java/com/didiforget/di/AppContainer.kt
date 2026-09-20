@@ -10,7 +10,9 @@ import com.didiforget.data.repository.CheckHistoryRepository
 import com.didiforget.data.repository.CheckHistoryRepositoryImpl
 import com.didiforget.data.repository.ItemRepository
 import com.didiforget.data.repository.ItemRepositoryImpl
+import com.didiforget.data.repository.RecentActivitiesCache
 import com.didiforget.domain.usecase.DeleteActivityUseCase
+import com.didiforget.domain.usecase.DeleteItemUseCase
 import com.didiforget.domain.usecase.GenerateChecklistUseCase
 import com.didiforget.domain.usecase.SaveActivityUseCase
 import com.didiforget.domain.usecase.ToggleItemUseCase
@@ -31,13 +33,16 @@ class AppContainer(context: Context) {
 
     private val database: AppDatabase by lazy { AppDatabase.getInstance(context) }
 
+    // Una sola caché compartida: los cambios en items invalidan la actividad cacheada.
+    private val recentActivitiesCache: RecentActivitiesCache by lazy { RecentActivitiesCache() }
+
     // --- Repositorios -----------------------------------------------------
     val activityRepository: ActivityRepository by lazy {
-        ActivityRepositoryImpl(database.activityDao(), database.itemDao())
+        ActivityRepositoryImpl(database.activityDao(), database.itemDao(), recentActivitiesCache)
     }
 
     val itemRepository: ItemRepository by lazy {
-        ItemRepositoryImpl(database.itemDao())
+        ItemRepositoryImpl(database.itemDao(), recentActivitiesCache)
     }
 
     val checkHistoryRepository: CheckHistoryRepository by lazy {
@@ -54,6 +59,7 @@ class AppContainer(context: Context) {
     val generateChecklistUseCase: GenerateChecklistUseCase by lazy { GenerateChecklistUseCase(aiService) }
     val saveActivityUseCase: SaveActivityUseCase by lazy { SaveActivityUseCase(activityRepository) }
     val deleteActivityUseCase: DeleteActivityUseCase by lazy { DeleteActivityUseCase(activityRepository) }
+    val deleteItemUseCase: DeleteItemUseCase by lazy { DeleteItemUseCase(itemRepository) }
     val toggleItemUseCase: ToggleItemUseCase by lazy { ToggleItemUseCase(itemRepository) }
     val verifyChecklistUseCase: VerifyChecklistUseCase by lazy { VerifyChecklistUseCase(checkHistoryRepository) }
 }

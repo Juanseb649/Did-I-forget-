@@ -29,7 +29,9 @@ class ViewModelFactory(private val container: AppContainer) : ViewModelProvider.
         ChecklistViewModel::class.java -> ChecklistViewModel(
             container.activityRepository,
             container.toggleItemUseCase,
-            container.verifyChecklistUseCase
+            container.verifyChecklistUseCase,
+            container.deleteItemUseCase,
+            container.deleteActivityUseCase
         )
 
         else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
