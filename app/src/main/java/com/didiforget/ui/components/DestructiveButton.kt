@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.wear.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,34 +16,30 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
+import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import com.didiforget.ui.theme.Dimens
-import com.didiforget.ui.theme.DidIForgetOnPrimary
-import com.didiforget.ui.theme.DidIForgetPrimary
+import com.didiforget.ui.theme.DidIForgetError
 
 /**
- * Botón principal de acción (DESIGN.md regla #2; la única excepción es
- * [DestructiveButton] para eliminar) — siempre relleno `Primary` (`#329C8A`) con contenido `OnPrimary`
- * (`#04221D`), forma de píldora y objetivo táctil mínimo de 44 dp.
+ * Botón para acciones destructivas (eliminar). Es la única excepción a la
+ * regla "una sola variante de botón" (DESIGN.md): sin relleno, con borde y
+ * contenido en `Error`, para que no compita con [PrimaryButton].
  */
 @Composable
-fun PrimaryButton(
+fun DestructiveButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
     @DrawableRes icon: Int? = null
 ) {
     Chip(
         modifier = modifier.fillMaxWidth().heightIn(min = Dimens.MinTouchTarget),
         onClick = onClick,
-        enabled = enabled,
         shape = RoundedCornerShape(50),
-        colors = ChipDefaults.chipColors(
-            backgroundColor = DidIForgetPrimary,
-            contentColor = DidIForgetOnPrimary
-        ),
+        colors = ChipDefaults.outlinedChipColors(contentColor = DidIForgetError),
+        border = ChipDefaults.outlinedChipBorder(borderColor = DidIForgetError),
         label = {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -55,12 +50,12 @@ fun PrimaryButton(
                     Icon(
                         painter = painterResource(icon),
                         contentDescription = null,
-                        tint = DidIForgetOnPrimary,
+                        tint = DidIForgetError,
                         modifier = Modifier.size(Dimens.IconMedium)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Text(text, style = MaterialTheme.typography.button)
+                Text(text, style = MaterialTheme.typography.button, color = DidIForgetError)
             }
         }
     )
