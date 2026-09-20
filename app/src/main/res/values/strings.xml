@@ -3,20 +3,51 @@
     <string name="app_name">Did I Forget?</string>
 
     <string name="home_title">¿Qué vas a hacer?</string>
-    <string name="home_new_activity">+ Nueva actividad</string>
+    <string name="home_new_activity">Nueva actividad</string>
     <string name="home_empty_state">Aún no tienes actividades guardadas</string>
+    <plurals name="home_activity_progress">
+        <item quantity="one">%1$d/%2$d objeto</item>
+        <item quantity="other">%1$d/%2$d objetos</item>
+    </plurals>
 
     <string name="activity_manual_tab">Manual</string>
     <string name="activity_ai_tab">IA</string>
+    <string name="activity_description_label">Describe la actividad</string>
     <string name="activity_description_hint">Describe la actividad…</string>
+    <string name="activity_voice_hint">Toca para dictar por voz</string>
+    <string name="activity_name_hint">Nombre de la actividad…</string>
+    <string name="activity_new_item_hint">Nuevo objeto…</string>
+    <string name="activity_add_item_button">Agregar objeto</string>
     <string name="activity_generate_button">Generar lista</string>
+    <string name="activity_generating">Generando…</string>
+    <string name="activity_new_default_name">Nueva actividad</string>
+    <string name="activity_review_button">Ver objetos (%d)</string>
     <string name="activity_save_button">Guardar</string>
+    <string name="activity_save_button_count">Guardar (%d)</string>
 
     <string name="checklist_title_prefix">Revisando</string>
+    <string name="checklist_loading">Cargando…</string>
+    <string name="checklist_progress">%1$d de %2$d verificados</string>
+    <string name="checklist_verify_button">Verificar</string>
+    <string name="checklist_home">Inicio</string>
+    <string name="checklist_edit">Editar</string>
+    <string name="checklist_done_editing">Listo</string>
+    <string name="checklist_empty">Esta actividad no tiene objetos</string>
+    <string name="checklist_delete_activity">Eliminar actividad</string>
+    <string name="checklist_delete_confirm_title">¿Eliminar %1$s?</string>
+    <string name="checklist_delete_confirm_message">Se borrarán también todos sus objetos.</string>
+    <string name="checklist_delete_confirm">Eliminar</string>
+    <string name="common_cancel">Cancelar</string>
+    <string name="content_delete_item">Eliminar %1$s</string>
 
     <string name="result_all_ready_title">TODO LISTO</string>
     <string name="result_all_ready_subtitle">Puedes salir</string>
     <string name="result_missing_title">TE FALTA</string>
+    <string name="result_summary_caption">%1$s · %2$d de %3$d objetos</string>
+    <string name="result_vibration_caption">El reloj vibró para avisarte</string>
+    <string name="result_back_button">Volver a la lista</string>
+    <string name="result_done_button">Listo</string>
+    <string name="result_verifying">Verificando…</string>
 
     <string name="error_generic">Algo salió mal. Intenta de nuevo.</string>
     <string name="error_ai_unavailable">No se pudo generar la lista con IA.</string>
