@@ -38,7 +38,7 @@ import com.didiforget.ui.components.ChecklistItemRow
 import com.didiforget.ui.components.DestructiveButton
 import com.didiforget.ui.components.IconBadge
 import com.didiforget.ui.components.PrimaryButton
-import com.didiforget.ui.components.SecondaryChip
+import com.didiforget.ui.components.SecondaryIconButton
 import com.didiforget.ui.icons.visualForActivity
 import com.didiforget.ui.result.ResultScreen
 import com.didiforget.ui.theme.DidIForgetError
@@ -106,14 +106,6 @@ fun ChecklistScreen(
             state = listState,
             modifier = Modifier.fillMaxSize().padding(horizontal = Dimens.ScreenHorizontalPadding)
         ) {
-            item {
-                SecondaryChip(
-                    text = stringResource(R.string.checklist_home),
-                    icon = R.drawable.ic_chevron_left,
-                    onClick = onGoHome
-                )
-            }
-
             when (val current = state) {
                 is UiState.Loading -> item {
                     Text(
@@ -162,17 +154,6 @@ fun ChecklistScreen(
                             textAlign = TextAlign.Center
                         )
                     }
-                    item {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                            SecondaryChip(
-                                text = stringResource(
-                                    if (editMode) R.string.checklist_done_editing else R.string.checklist_edit
-                                ),
-                                icon = if (editMode) R.drawable.ic_check else R.drawable.ic_pencil,
-                                onClick = { editMode = !editMode }
-                            )
-                        }
-                    }
                     items(activity.items, key = { it.id }) { item ->
                         ChecklistItemRow(
                             item = item,
@@ -206,6 +187,31 @@ fun ChecklistScreen(
                                 onClick = { viewModel.verify() }
                             )
                         }
+                    }
+                }
+            }
+
+            // Acciones secundarias: pequeñas y debajo de "Verificar" para que éste resalte.
+            item {
+                val canEdit = state is UiState.Success
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SecondaryIconButton(
+                        icon = R.drawable.ic_chevron_left,
+                        contentDescription = stringResource(R.string.checklist_home),
+                        onClick = onGoHome
+                    )
+                    if (canEdit) {
+                        SecondaryIconButton(
+                            icon = if (editMode) R.drawable.ic_check else R.drawable.ic_pencil,
+                            contentDescription = stringResource(
+                                if (editMode) R.string.checklist_done_editing else R.string.checklist_edit
+                            ),
+                            onClick = { editMode = !editMode }
+                        )
                     }
                 }
             }

@@ -7,6 +7,15 @@ object Dimens {
     /** Margen horizontal de las listas (ScalingLazyColumn) en pantallas redondas. */
     val ScreenHorizontalPadding = 40.dp
 
+    /** Margen horizontal de la cuadrícula de actividades del Home (más ancha que las listas). */
+    val ActivityGridHorizontalPadding = 20.dp
+
+    /** Separación entre casillas de la cuadrícula de actividades. */
+    val ActivityGridSpacing = 8.dp
+
+    /** Alto de cada casilla de actividad: cómodo de tocar, sin ser gigante. */
+    val ActivityTileHeight = 72.dp
+
     /** Alto táctil mínimo de chips y botones. */
     val MinTouchTarget = 44.dp
 

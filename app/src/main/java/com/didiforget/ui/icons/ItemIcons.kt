@@ -48,10 +48,13 @@ private val activityVisuals: List<Pair<String, ItemVisual>> = listOf(
     "universidad" to ItemVisual(R.drawable.ic_school, AccentAmber),
     "presentacion" to ItemVisual(R.drawable.ic_presentation, AccentBlue),
     "clase" to ItemVisual(R.drawable.ic_books, AccentAmber),
+    "casa" to ItemVisual(R.drawable.ic_home, AccentTeal),
     "trabajo" to ItemVisual(R.drawable.ic_briefcase, AccentBlue),
-    "viaje" to ItemVisual(R.drawable.ic_plane, AccentLilac),
+    "viaje" to ItemVisual(R.drawable.ic_compass, AccentLilac),
+    "vuelo" to ItemVisual(R.drawable.ic_plane, AccentLilac),
     "acampar" to ItemVisual(R.drawable.ic_tent, AccentAmber),
     "gimnasio" to ItemVisual(R.drawable.ic_barbell, AccentLilac),
+    "gym" to ItemVisual(R.drawable.ic_barbell, AccentLilac),
     "cita medica" to ItemVisual(R.drawable.ic_stethoscope, AccentTeal)
 )
 
