@@ -5,7 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.didiforget.core.DomainError
 import com.didiforget.data.model.Activity
 import com.didiforget.data.model.CheckHistory
+import com.didiforget.data.model.Item
 import com.didiforget.data.repository.ActivityRepository
+import com.didiforget.domain.usecase.DeleteActivityUseCase
+import com.didiforget.domain.usecase.DeleteItemUseCase
 import com.didiforget.domain.usecase.ToggleItemUseCase
 import com.didiforget.domain.usecase.VerifyChecklistUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +24,9 @@ import kotlinx.coroutines.launch
 class ChecklistViewModel(
     private val activityRepository: ActivityRepository,
     private val toggleItemUseCase: ToggleItemUseCase,
-    private val verifyChecklistUseCase: VerifyChecklistUseCase
+    private val verifyChecklistUseCase: VerifyChecklistUseCase,
+    private val deleteItemUseCase: DeleteItemUseCase,
+    private val deleteActivityUseCase: DeleteActivityUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<Activity>>(UiState.Loading)
@@ -52,6 +57,21 @@ class ChecklistViewModel(
 
         // ...y se confirma en segundo plano contra Room.
         viewModelScope.launch { toggleItemUseCase(itemId, checked) }
+    }
+
+    fun deleteItem(item: Item) {
+        val current = (_uiState.value as? UiState.Success)?.data ?: return
+        // Igual que toggleItem: la UI se actualiza de inmediato y Room se confirma después.
+        _uiState.value = UiState.Success(current.copy(items = current.items.filterNot { it.id == item.id }))
+        viewModelScope.launch { deleteItemUseCase(item) }
+    }
+
+    fun deleteActivity(onDeleted: () -> Unit) {
+        val current = (_uiState.value as? UiState.Success)?.data ?: return
+        viewModelScope.launch {
+            deleteActivityUseCase(current.id)
+            onDeleted()
+        }
     }
 
     /** Corresponde al paso "¿Falta algo?" del flujo de la app. */

@@ -19,6 +19,7 @@ private val DidIForgetColors = Colors(
 fun DidIForgetTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colors = DidIForgetColors,
+        typography = DidIForgetTypography,
         content = content
     )
 }
