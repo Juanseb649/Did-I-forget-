@@ -21,7 +21,7 @@ import androidx.wear.compose.material.TimeText
 import com.didiforget.R
 import com.didiforget.data.model.Activity
 import com.didiforget.ui.components.ActivityTile
-import com.didiforget.ui.components.PrimaryButton
+import com.didiforget.ui.components.PrimaryIconButton
 import com.didiforget.ui.theme.Dimens
 import com.didiforget.ui.theme.DidIForgetOnSurface
 import com.didiforget.ui.theme.DidIForgetOnSurfaceMuted
@@ -93,11 +93,10 @@ fun HomeScreen(
             }
 
             item {
-                PrimaryButton(
-                    text = stringResource(R.string.home_new_activity),
+                PrimaryIconButton(
                     icon = R.drawable.ic_plus,
-                    onClick = onNewActivityClick,
-                    modifier = listPadding
+                    contentDescription = stringResource(R.string.home_new_activity),
+                    onClick = onNewActivityClick
                 )
             }
         }

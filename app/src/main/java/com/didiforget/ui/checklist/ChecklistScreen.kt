@@ -1,12 +1,13 @@
 package com.didiforget.ui.checklist
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
@@ -127,17 +129,19 @@ fun ChecklistScreen(
                     val activity = current.data
                     item {
                         val visual = visualForActivity(activity.name)
-                        Row(
+                        Column(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            IconBadge(icon = visual.icon, tint = visual.tint, size = 24.dp, iconSize = Dimens.IconSmall)
-                            Spacer(modifier = Modifier.width(6.dp))
+                            IconBadge(icon = visual.icon, tint = visual.tint, size = 44.dp, iconSize = 26.dp)
+                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = activity.name,
-                                style = MaterialTheme.typography.title2,
-                                color = DidIForgetOnSurface
+                                style = MaterialTheme.typography.body2,
+                                color = DidIForgetOnSurface,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }

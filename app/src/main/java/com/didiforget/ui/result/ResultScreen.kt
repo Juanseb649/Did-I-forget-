@@ -30,7 +30,7 @@ import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import com.didiforget.R
 import com.didiforget.data.model.CheckResult
-import com.didiforget.ui.components.PrimaryButton
+import com.didiforget.ui.components.PrimaryIconButton
 import com.didiforget.ui.components.StatusResultScreen
 import com.didiforget.ui.icons.visualForItem
 import com.didiforget.ui.theme.DidIForgetError
@@ -92,7 +92,11 @@ fun ResultScreen(
                 stringResource(R.string.result_summary_caption, it.name, it.checkedItems, it.totalItems)
             },
             footer = {
-                PrimaryButton(text = stringResource(R.string.result_done_button), onClick = onDone)
+                PrimaryIconButton(
+                    icon = R.drawable.ic_check,
+                    contentDescription = stringResource(R.string.result_done_button),
+                    onClick = onDone
+                )
             }
         )
 
@@ -116,7 +120,11 @@ fun ResultScreen(
                 }
             },
             footer = {
-                PrimaryButton(text = stringResource(R.string.result_back_button), onClick = onBackToList)
+                PrimaryIconButton(
+                    icon = R.drawable.ic_chevron_left,
+                    contentDescription = stringResource(R.string.result_back_button),
+                    onClick = onBackToList
+                )
             }
         )
 
