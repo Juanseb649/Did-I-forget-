@@ -28,6 +28,8 @@ val DidIForgetErrorGlowEnd = Color(0xFF0A0707)
 val DidIForgetSuccessGlowStart = Color(0xFF16463D) // centro degradado "todo listo"
 val DidIForgetSuccessGlowMid = Color(0xFF0A1F1C)
 val DidIForgetSuccessGlowEnd = Color(0xFF06100E)
+val DidIForgetAccentBright = Color(0xFF3EA88F) // círculo del check en "todo listo"
+val DidIForgetErrorBadge = Color(0x8C781E19) // fondo (55% alfa) del círculo de alerta en "te falta"
 
 // ── Acentos de categoría (SOLO para iconos, nunca para fondos ni botones) ──
 val AccentAmber = Color(0xFFE8A33D) // estudio / actividad / advertencia

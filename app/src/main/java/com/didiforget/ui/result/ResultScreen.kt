@@ -5,7 +5,6 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,39 +13,48 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.wear.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import com.didiforget.R
 import com.didiforget.data.model.CheckResult
+import com.didiforget.ui.components.AlertBadge
+import com.didiforget.ui.components.PrimaryButton
 import com.didiforget.ui.components.PrimaryIconButton
+import com.didiforget.ui.components.SuccessBadge
 import com.didiforget.ui.components.StatusResultScreen
 import com.didiforget.ui.icons.visualForItem
 import com.didiforget.ui.theme.DidIForgetError
 import com.didiforget.ui.theme.DidIForgetErrorGlowEnd
 import com.didiforget.ui.theme.DidIForgetErrorGlowMid
 import com.didiforget.ui.theme.DidIForgetErrorGlowStart
-import com.didiforget.ui.theme.DidIForgetOnPrimary
 import com.didiforget.ui.theme.DidIForgetOnSurface
+import com.didiforget.ui.theme.DidIForgetOnSurfaceMuted
 import com.didiforget.ui.theme.DidIForgetPrimary
-import com.didiforget.ui.theme.DidIForgetPrimaryLight
 import com.didiforget.ui.theme.DidIForgetSuccessGlowEnd
 import com.didiforget.ui.theme.DidIForgetSuccessGlowMid
 import com.didiforget.ui.theme.DidIForgetSuccessGlowStart
-import com.didiforget.ui.theme.DidIForgetSurface
 import com.didiforget.viewmodel.ChecklistViewModel
 import com.didiforget.viewmodel.UiState
+
+private const val MAX_MISSING_SHOWN = 2
 
 /**
  * Pantalla de resultado (DESIGN.md §4.4 / README, "Flujo de usuario" paso 5):
@@ -64,6 +72,8 @@ fun ResultScreen(
     val state by viewModel.uiState.collectAsState()
     val activity = (state as? UiState.Success)?.data
     val context = LocalContext.current
+    // "Todo listo": el texto aparece solo cuando el visto termina de trazarse.
+    var checkDrawn by remember(lastCheck) { mutableStateOf(false) }
 
     LaunchedEffect(lastCheck?.result) {
         when (lastCheck?.result) {
@@ -76,47 +86,47 @@ fun ResultScreen(
     when (lastCheck?.result) {
         CheckResult.COMPLETE -> StatusResultScreen(
             modifier = modifier,
-            icon = R.drawable.ic_check,
-            iconTint = DidIForgetOnPrimary,
-            badgeSize = 72.dp,
-            iconSize = 40.dp,
-            badgeBackground = DidIForgetPrimary,
+            badge = { SuccessBadge(onCheckDrawn = { checkDrawn = true }) },
+            textVisible = checkDrawn,
             glowStart = DidIForgetSuccessGlowStart,
             glowMid = DidIForgetSuccessGlowMid,
             glowEnd = DidIForgetSuccessGlowEnd,
             eyebrow = stringResource(R.string.result_all_ready_title),
-            eyebrowColor = DidIForgetPrimaryLight,
+            eyebrowColor = DidIForgetPrimary,
+            eyebrowStyle = resultEyebrowStyle(),
             title = stringResource(R.string.result_all_ready_subtitle),
-            titleStyle = MaterialTheme.typography.display1,
+            titleStyle = MaterialTheme.typography.display1.copy(fontSize = 18.sp, lineHeight = 22.sp),
             caption = activity?.let {
                 stringResource(R.string.result_summary_caption, it.name, it.checkedItems, it.totalItems)
             },
             footer = {
-                PrimaryIconButton(
-                    icon = R.drawable.ic_check,
-                    contentDescription = stringResource(R.string.result_done_button),
-                    onClick = onDone
+                PrimaryButton(
+                    text = stringResource(R.string.result_done_button),
+                    onClick = onDone,
+                    modifier = Modifier.width(112.dp)
                 )
             }
         )
 
         CheckResult.INCOMPLETE -> StatusResultScreen(
             modifier = modifier,
-            icon = R.drawable.ic_alert_triangle,
-            iconTint = DidIForgetError,
-            badgeSize = 56.dp,
-            iconSize = 30.dp,
-            badgeBackground = DidIForgetError.copy(alpha = 0.16f),
+            badge = { AlertBadge() },
             glowStart = DidIForgetErrorGlowStart,
             glowMid = DidIForgetErrorGlowMid,
             glowEnd = DidIForgetErrorGlowEnd,
             eyebrow = stringResource(R.string.result_missing_title),
             eyebrowColor = DidIForgetError,
-            caption = stringResource(R.string.result_vibration_caption),
+            eyebrowStyle = resultEyebrowStyle(),
             content = {
                 Spacer(modifier = Modifier.height(6.dp))
-                lastCheck?.missingItemNames.orEmpty().forEach { name ->
-                    MissingItemPill(name = name)
+                val missing = lastCheck?.missingItemNames.orEmpty()
+                missing.take(MAX_MISSING_SHOWN).forEach { name -> MissingItemRow(name = name) }
+                if (missing.size > MAX_MISSING_SHOWN) {
+                    Text(
+                        text = stringResource(R.string.result_more_items, missing.size - MAX_MISSING_SHOWN),
+                        style = MaterialTheme.typography.caption1,
+                        color = DidIForgetOnSurfaceMuted
+                    )
                 }
             },
             footer = {
@@ -134,27 +144,42 @@ fun ResultScreen(
     }
 }
 
-/** Píldora "ícono + nombre" para cada objeto faltante (DESIGN.md, Pantalla 5). */
+/**
+ * Objeto faltante (boceto HTML `.pending`): ícono + nombre en texto semibold,
+ * sin píldora de fondo. Se muestran máximo [MAX_MISSING_SHOWN]; el resto va como "+N más".
+ */
 @Composable
-private fun MissingItemPill(name: String, modifier: Modifier = Modifier) {
+private fun MissingItemRow(name: String, modifier: Modifier = Modifier) {
     val visual = visualForItem(name)
     Row(
-        modifier = modifier
-            .padding(top = 6.dp)
-            .background(DidIForgetSurface, RoundedCornerShape(50))
-            .padding(horizontal = 14.dp, vertical = 8.dp),
+        modifier = modifier.padding(top = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             painter = painterResource(visual.icon),
             contentDescription = null,
-            tint = visual.tint,
-            modifier = Modifier.size(18.dp)
+            tint = DidIForgetOnSurface,
+            modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(text = name, style = MaterialTheme.typography.title2, color = DidIForgetOnSurface)
+        Text(
+            text = name,
+            style = MaterialTheme.typography.title2.copy(fontWeight = FontWeight.SemiBold),
+            color = DidIForgetOnSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
+
+// Boceto HTML: .display1 21 px con tracking .16em, escalado a sp.
+@Composable
+private fun resultEyebrowStyle() = MaterialTheme.typography.caption2.copy(
+    fontWeight = FontWeight.Bold,
+    fontSize = 16.sp,
+    lineHeight = 19.sp,
+    letterSpacing = 0.16.em
+)
 
 /** Feedback háptico; usa la API vigente según la versión de Android. */
 private fun vibrate(context: Context, doublePulse: Boolean) {

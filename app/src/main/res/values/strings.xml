@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Did I Forget?</string>
 
-    <string name="home_title">¿Qué vas a hacer?</string>
+    <string name="home_title">¿Qué harás?</string>
     <string name="home_new_activity">Nueva actividad</string>
     <string name="home_empty_state">Aún no tienes actividades guardadas</string>
     <plurals name="home_activity_progress">
@@ -27,6 +27,7 @@
 
     <string name="checklist_title_prefix">Revisando</string>
     <string name="checklist_loading">Cargando…</string>
+    <string name="checklist_editing">Editando</string>
     <string name="checklist_progress">%1$d de %2$d verificados</string>
     <string name="checklist_verify_button">Verificar</string>
     <string name="checklist_home">Inicio</string>
@@ -43,8 +44,8 @@
     <string name="result_all_ready_title">TODO LISTO</string>
     <string name="result_all_ready_subtitle">Puedes salir</string>
     <string name="result_missing_title">TE FALTA</string>
+    <string name="result_more_items">+%d más</string>
     <string name="result_summary_caption">%1$s · %2$d de %3$d objetos</string>
-    <string name="result_vibration_caption">El reloj vibró para avisarte</string>
     <string name="result_back_button">Volver a la lista</string>
     <string name="result_done_button">Listo</string>
     <string name="result_verifying">Verificando…</string>

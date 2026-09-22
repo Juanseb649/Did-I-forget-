@@ -42,6 +42,7 @@ import com.didiforget.ui.components.IconBadge
 import com.didiforget.ui.components.PrimaryButton
 import com.didiforget.ui.components.SecondaryIconButton
 import com.didiforget.ui.icons.visualForActivity
+import com.didiforget.ui.navigation.pageEnter
 import com.didiforget.ui.result.ResultScreen
 import com.didiforget.ui.theme.DidIForgetError
 import com.didiforget.ui.theme.DidIForgetOnPrimary
@@ -92,7 +93,7 @@ fun ChecklistScreen(
             viewModel = viewModel,
             onBackToList = { resultDismissed = true },
             onDone = onGoHome,
-            modifier = modifier
+            modifier = modifier.pageEnter()
         )
         return
     }
@@ -147,11 +148,11 @@ fun ChecklistScreen(
                     }
                     item {
                         Text(
-                            text = stringResource(
-                                R.string.checklist_progress,
-                                activity.checkedItems,
-                                activity.totalItems
-                            ),
+                            text = if (editMode) {
+                                stringResource(R.string.checklist_editing)
+                            } else {
+                                stringResource(R.string.checklist_progress, activity.checkedItems, activity.totalItems)
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             style = MaterialTheme.typography.caption1,
                             color = DidIForgetOnSurfaceMuted,
