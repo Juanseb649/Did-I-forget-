@@ -36,7 +36,6 @@ import androidx.wear.compose.material.Text
 import com.didiforget.R
 import com.didiforget.data.model.CheckResult
 import com.didiforget.ui.components.AlertBadge
-import com.didiforget.ui.components.PrimaryButton
 import com.didiforget.ui.components.PrimaryIconButton
 import com.didiforget.ui.components.SuccessBadge
 import com.didiforget.ui.components.StatusResultScreen
@@ -100,10 +99,10 @@ fun ResultScreen(
                 stringResource(R.string.result_summary_caption, it.name, it.checkedItems, it.totalItems)
             },
             footer = {
-                PrimaryButton(
-                    text = stringResource(R.string.result_done_button),
-                    onClick = onDone,
-                    modifier = Modifier.width(112.dp)
+                PrimaryIconButton(
+                    icon = R.drawable.ic_home,
+                    contentDescription = stringResource(R.string.result_done_button),
+                    onClick = onDone
                 )
             }
         )
