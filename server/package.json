@@ -1,0 +1,16 @@
+{
+  "name": "did-i-forget-ai-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Proxy serverless que guarda la API key de OpenAI del lado del servidor, para que la app de Wear OS 'Did I Forget?' nunca la lleve embebida en el APK.",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "openai": "^4.68.0"
+  },
+  "devDependencies": {
+    "@vercel/node": "^3.2.24",
+    "typescript": "^5.6.3"
+  }
+}

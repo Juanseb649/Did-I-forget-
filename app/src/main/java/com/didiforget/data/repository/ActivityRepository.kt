@@ -1,11 +1,17 @@
 package com.didiforget.data.repository
 
-import com.didiforget.data.dao.ActivityDao
 import com.didiforget.data.model.Activity
+import kotlinx.coroutines.flow.Flow
 
-class ActivityRepository(private val activityDao: ActivityDao) {
-    fun getActivities(): List<Activity> = activityDao.getAll()
-    fun getActivity(id: Long): Activity? = activityDao.getById(id)
-    fun saveActivity(activity: Activity): Activity = activityDao.save(activity)
-    fun deleteActivity(id: Long) = activityDao.delete(id)
+/**
+ * Contrato de acceso a actividades. El dominio y los ViewModels dependen SOLO
+ * de esta interfaz (Dependency Inversion Principle): no saben si detrás hay
+ * Room, una API o un mapa en memoria.
+ */
+interface ActivityRepository {
+    fun observeActivities(): Flow<List<Activity>>
+    suspend fun getActivities(): List<Activity>
+    suspend fun getActivity(id: Long): Activity?
+    suspend fun saveActivity(activity: Activity): Activity
+    suspend fun deleteActivity(id: Long)
 }
