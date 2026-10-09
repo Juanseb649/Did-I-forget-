@@ -1,8 +1,10 @@
 package com.didiforget.di
 
 import android.content.Context
+import com.didiforget.BuildConfig
 import com.didiforget.ai.AIService
 import com.didiforget.ai.LocalKeywordAIService
+import com.didiforget.ai.RemoteAIService
 import com.didiforget.data.database.AppDatabase
 import com.didiforget.data.repository.ActivityRepository
 import com.didiforget.data.repository.ActivityRepositoryImpl
@@ -50,10 +52,17 @@ class AppContainer(context: Context) {
     }
 
     // --- IA (Strategy) ------------------------------------------------------
-    // Único punto de cambio cuando se elija un proveedor real (OpenAI, Gemini,
-    // Claude...): reemplazar LocalKeywordAIService() por, por ejemplo,
-    // OpenAIService(apiKey = BuildConfig.OPENAI_API_KEY).
-    val aiService: AIService by lazy { LocalKeywordAIService() }
+    // RemoteAIService habla con el backend propio del proyecto (server/, un
+    // proxy serverless) en vez de con OpenAI directo — ver su KDoc y
+    // server/README.md para el porqué (repo público + APK compartido =
+    // ninguna key puede viajar dentro de la app).
+    //
+    // Si BACKEND_BASE_URL no está configurado en local.properties (ej. recién
+    // clonaste el repo y no has desplegado tu propio backend), se usa
+    // LocalKeywordAIService para que la app siga siendo funcional sin red.
+    val aiService: AIService by lazy {
+        if (BuildConfig.BACKEND_BASE_URL.isNotBlank()) RemoteAIService() else LocalKeywordAIService()
+    }
 
     // --- Use Cases ----------------------------------------------------------
     val generateChecklistUseCase: GenerateChecklistUseCase by lazy { GenerateChecklistUseCase(aiService) }
