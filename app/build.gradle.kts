@@ -18,6 +18,16 @@ val localProperties = Properties().apply {
     }
 }
 
+// Credenciales de firma del APK de release, leídas de keystore.properties — nunca
+// de git (ver .gitignore). Si el archivo no existe (p. ej. en un clon recién
+// hecho), el release se arma sin firmar en vez de romper el build.
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        FileInputStream(keystorePropertiesFile).use { load(it) }
+    }
+}
+
 android {
     namespace = "com.didiforget"
     compileSdk = 35
@@ -41,8 +51,20 @@ android {
         )
     }
 
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
