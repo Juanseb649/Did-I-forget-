@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.wear.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,18 +35,18 @@ import com.didiforget.ui.theme.DidIForgetOnPrimary
 import com.didiforget.ui.theme.DidIForgetOnSurface
 import com.didiforget.ui.theme.DidIForgetOnSurfaceMuted
 import com.didiforget.ui.theme.DidIForgetPrimary
-import com.didiforget.ui.theme.DidIForgetPrimaryTint
-import com.didiforget.ui.theme.DidIForgetSurface
+import com.didiforget.ui.theme.liquidGlass
+import com.didiforget.ui.theme.pillShape
 
 private val CheckboxBorder = Color(0xFF3A5257)
 
 /**
- * Fila de la checklist (boceto HTML `.item-row`): ícono del objeto + nombre +
- * círculo de verificación, en una tarjeta de esquinas redondeadas. Marcada, la
- * tarjeta se tiñe de `Primary` y el ícono pasa a `Primary`; sin marcar, el
- * ícono va en gris. Si [onDelete] no es null (modo edición), la fila deja de
- * poder marcarse y aparece a su derecha un botón circular de papelera que
- * elimina el objeto.
+ * Fila de la checklist: ícono del objeto + nombre + círculo de verificación,
+ * sobre vidrio (exploración "Liquid glass actual"). Marcada, el vidrio se
+ * tiñe de `Primary` y el ícono pasa a `Primary`; sin marcar, el ícono va en
+ * gris. Si [onDelete] no es null (modo edición), la fila deja de poder
+ * marcarse y aparece a su derecha un botón circular de papelera que elimina
+ * el objeto.
  */
 @Composable
 fun ChecklistItemRow(
@@ -59,18 +58,20 @@ fun ChecklistItemRow(
     val visual = visualForItem(item.name)
     val editing = onDelete != null
     val checked = item.isChecked && !editing
-    val shape = RoundedCornerShape(16.dp)
 
     Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Row(
             modifier = Modifier
                 .weight(1f)
                 .defaultMinSize(minHeight = Dimens.MinTouchTarget)
+                .liquidGlass(
+                    shape = pillShape,
+                    tint = if (checked) DidIForgetPrimary.copy(alpha = 0.22f) else Color.Unspecified
+                )
                 .then(
                     if (editing) Modifier
                     else Modifier.toggleable(value = item.isChecked, role = Role.Checkbox, onValueChange = onCheckedChange)
                 )
-                .background(if (checked) DidIForgetPrimaryTint else DidIForgetSurface, shape)
                 .padding(vertical = 10.dp, horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
