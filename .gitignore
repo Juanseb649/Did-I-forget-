@@ -9,3 +9,8 @@
 .cxx
 local.properties
 /app/build
+
+# Firma del APK de release - NUNCA versionar
+/keystore.properties
+*.jks
+*.keystore
