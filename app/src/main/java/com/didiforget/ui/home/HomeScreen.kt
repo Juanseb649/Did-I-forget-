@@ -5,12 +5,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
@@ -22,9 +27,9 @@ import com.didiforget.R
 import com.didiforget.data.model.Activity
 import com.didiforget.ui.components.ActivityTile
 import com.didiforget.ui.components.PrimaryIconButton
-import com.didiforget.ui.theme.Dimens
-import com.didiforget.ui.theme.DidIForgetOnSurface
 import com.didiforget.ui.theme.DidIForgetOnSurfaceMuted
+import com.didiforget.ui.theme.responsiveGridPadding
+import com.didiforget.ui.theme.responsiveHorizontalPadding
 import com.didiforget.viewmodel.HomeViewModel
 import com.didiforget.viewmodel.UiState
 
@@ -34,6 +39,11 @@ private const val GRID_COLUMNS = 2
  * Pantalla principal (ver README, sección "Flujo de usuario" paso 1):
  * cuadrícula de 2 columnas con las actividades guardadas (un toque abre la
  * actividad) y, debajo, el botón para crear una nueva.
+ *
+ * Nota de diseño (exploración "Liquid glass actual"): no hay un título visible
+ * — la hora del sistema y la cuadrícula de íconos ya dan todo el contexto que
+ * esta pantalla necesita. El título sigue existiendo como encabezado
+ * accesible invisible, para quien navegue con lector de pantalla.
  */
 @Composable
 fun HomeScreen(
@@ -43,7 +53,8 @@ fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
-    val listPadding = Modifier.padding(horizontal = Dimens.ScreenHorizontalPadding)
+    val homeTitle = stringResource(R.string.home_title)
+    val horizontalPadding = Modifier.padding(horizontal = responsiveHorizontalPadding())
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -51,15 +62,19 @@ fun HomeScreen(
     ) {
         ScalingLazyColumn(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(Dimens.ActivityGridSpacing)
+            verticalArrangement = Arrangement.spacedBy(responsiveGridPadding())
         ) {
             item {
-                Text(
-                    text = stringResource(R.string.home_title),
-                    modifier = Modifier.fillMaxWidth().then(listPadding),
-                    style = MaterialTheme.typography.title1,
-                    color = DidIForgetOnSurface,
-                    textAlign = TextAlign.Center
+                // Encabezado accesible invisible: TalkBack lo anuncia como título de
+                // la pantalla, pero no ocupa espacio ni se dibuja (ver nota de diseño).
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(0.dp)
+                        .semantics(mergeDescendants = true) {
+                            heading()
+                            contentDescription = homeTitle
+                        }
                 )
             }
 
@@ -68,7 +83,7 @@ fun HomeScreen(
                 is UiState.Error -> item {
                     Text(
                         text = current.error.message,
-                        modifier = Modifier.fillMaxWidth().then(listPadding),
+                        modifier = Modifier.fillMaxWidth().then(horizontalPadding),
                         style = MaterialTheme.typography.body2,
                         textAlign = TextAlign.Center
                     )
@@ -78,7 +93,7 @@ fun HomeScreen(
                         item {
                             Text(
                                 text = stringResource(R.string.home_empty_state),
-                                modifier = Modifier.fillMaxWidth().then(listPadding),
+                                modifier = Modifier.fillMaxWidth().then(horizontalPadding),
                                 style = MaterialTheme.typography.body2,
                                 color = DidIForgetOnSurfaceMuted,
                                 textAlign = TextAlign.Center
@@ -112,8 +127,8 @@ private fun ActivityGridRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Dimens.ActivityGridHorizontalPadding),
-        horizontalArrangement = Arrangement.spacedBy(Dimens.ActivityGridSpacing)
+            .padding(horizontal = responsiveGridPadding()),
+        horizontalArrangement = Arrangement.spacedBy(responsiveGridPadding())
     ) {
         activities.forEach { activity ->
             ActivityTile(
