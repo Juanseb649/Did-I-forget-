@@ -1,8 +1,21 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
+}
+
+// Config del backend (server/), leída de local.properties — nunca de git (ver
+// server/README.md). Si no están configuradas, BACKEND_BASE_URL queda vacío y
+// AppContainer cae de vuelta a LocalKeywordAIService en vez de romper el build.
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        FileInputStream(localPropertiesFile).use { load(it) }
+    }
 }
 
 android {
@@ -15,6 +28,17 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
+
+        buildConfigField(
+            "String",
+            "BACKEND_BASE_URL",
+            "\"${localProperties.getProperty("BACKEND_BASE_URL", "")}\""
+        )
+        buildConfigField(
+            "String",
+            "APP_SHARED_SECRET",
+            "\"${localProperties.getProperty("APP_SHARED_SECRET", "")}\""
+        )
     }
 
     buildTypes {
@@ -35,6 +59,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -67,6 +92,7 @@ dependencies {
     ksp(libs.room.compiler)
 
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.okhttp)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
