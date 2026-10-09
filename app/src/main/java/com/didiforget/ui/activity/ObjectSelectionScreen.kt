@@ -5,32 +5,29 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import com.didiforget.R
 import com.didiforget.data.model.Activity
-import com.didiforget.ui.components.IconBadge
-import com.didiforget.ui.components.PrimaryButton
+import com.didiforget.ui.components.PrimaryIconButton
 import com.didiforget.ui.components.SelectableItemTile
-import com.didiforget.ui.icons.visualForActivity
 import com.didiforget.ui.icons.visualForItem
-import com.didiforget.ui.theme.Dimens
-import com.didiforget.ui.theme.DidIForgetOnSurface
+import com.didiforget.ui.theme.responsiveHorizontalPadding
 import com.didiforget.viewmodel.ActivityViewModel
 import com.didiforget.viewmodel.UiState
 
@@ -40,6 +37,12 @@ import com.didiforget.viewmodel.UiState
  * antes de guardar. El usuario confirma en un grid de 2 columnas cuáles de
  * los objetos sugeridos realmente quiere guardar — tocar un objeto lo
  * marca/desmarca, no lo elimina de la lista.
+ *
+ * Nota de diseño (exploración "Liquid glass actual"): se quitó el
+ * encabezado con el ícono y el nombre de la actividad (el modelo no lo
+ * muestra en esta pantalla — el nombre ya se vio en el paso anterior); el
+ * nombre sigue disponible para TalkBack vía un encabezado accesible
+ * invisible.
  */
 @Composable
 fun ObjectSelectionScreen(
@@ -50,8 +53,8 @@ fun ObjectSelectionScreen(
     val state by viewModel.uiState.collectAsState()
     val current = state as? UiState.Success ?: return
     val activity = current.data
-    val activityVisual = visualForActivity(activity.name)
     val selectedCount = activity.items.count { it.isChecked }
+    val accessibleTitle = activity.name.ifBlank { stringResource(R.string.activity_new_default_name) }
 
     val listState = rememberScalingLazyListState()
 
@@ -62,22 +65,21 @@ fun ObjectSelectionScreen(
     ) {
         ScalingLazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize().padding(horizontal = Dimens.ScreenHorizontalPadding)
+            modifier = Modifier.fillMaxSize().padding(horizontal = responsiveHorizontalPadding())
         ) {
             item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconBadge(icon = activityVisual.icon, tint = activityVisual.tint, size = 24.dp, iconSize = Dimens.IconSmall)
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = activity.name.ifBlank { stringResource(R.string.activity_new_default_name) },
-                        style = MaterialTheme.typography.title2,
-                        color = DidIForgetOnSurface
-                    )
-                }
+                // Encabezado accesible invisible: el nombre de la actividad
+                // ya no se muestra en pantalla, pero sigue anunciándose a
+                // TalkBack antes de la grilla.
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(0.dp)
+                        .semantics(mergeDescendants = true) {
+                            heading()
+                            contentDescription = accessibleTitle
+                        }
+                )
             }
             items(activity.items.withIndex().chunked(2)) { row ->
                 Row(modifier = Modifier.fillMaxWidth()) {
@@ -99,9 +101,10 @@ fun ObjectSelectionScreen(
             }
             if (selectedCount > 0) {
                 item {
-                    PrimaryButton(
-                        text = stringResource(R.string.activity_save_button_count, selectedCount),
+                    PrimaryIconButton(
                         icon = R.drawable.ic_check,
+                        contentDescription = stringResource(R.string.activity_save_button_count, selectedCount),
+                        badgeCount = selectedCount,
                         onClick = { viewModel.save(onSaved) }
                     )
                 }
