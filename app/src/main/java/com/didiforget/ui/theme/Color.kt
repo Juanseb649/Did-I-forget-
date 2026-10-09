@@ -36,3 +36,14 @@ val AccentAmber = Color(0xFFE8A33D) // estudio / actividad / advertencia
 val AccentBlue = Color(0xFF7FB2E8) // trabajo / documentos / tecnología
 val AccentLilac = Color(0xFFC79BE8) // viaje / ocio
 val AccentTeal = Color(0xFF4FBFAA) // salud / agua / seleccionado
+
+// ── Liquid glass ("Propuesta B" de la exploración de diseño) ───────────────
+// Reemplaza el `Surface` sólido y plano por capas translúcidas: sin backdrop-
+// blur real (no estable en Compose para minSdk 30), pero con el mismo efecto
+// de lectura — un degradado que ilumina desde arriba + un borde que hace lo
+// mismo. Ver ui/theme/Glass.kt.
+val GlassFillTop = Color(0x1FFFFFFF) // 12% alfa: borde superior del panel de vidrio
+val GlassFillBottom = Color(0x05FFFFFF) // 2% alfa: casi transparente hacia abajo
+val GlassBorderTop = Color(0x33FFFFFF) // 20% alfa: filo iluminado
+val GlassBorderBottom = Color(0x0FFFFFFF) // 6% alfa: filo en sombra
+val GlassSheenColor = Color(0x24FFFFFF) // barrido de luz giratorio, muy sutil
