@@ -1,7 +1,7 @@
 package com.didiforget.ui.checklist
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,8 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
@@ -38,17 +40,19 @@ import androidx.wear.compose.material.dialog.Dialog
 import com.didiforget.R
 import com.didiforget.ui.components.ChecklistItemRow
 import com.didiforget.ui.components.DestructiveButton
-import com.didiforget.ui.components.IconBadge
-import com.didiforget.ui.components.PrimaryButton
+import com.didiforget.ui.components.PrimaryIconButton
+import com.didiforget.ui.components.ProgressRing
+import com.didiforget.ui.components.ProgressRingLabel
 import com.didiforget.ui.components.SecondaryIconButton
-import com.didiforget.ui.icons.visualForActivity
 import com.didiforget.ui.navigation.pageEnter
 import com.didiforget.ui.result.ResultScreen
 import com.didiforget.ui.theme.DidIForgetError
 import com.didiforget.ui.theme.DidIForgetOnPrimary
 import com.didiforget.ui.theme.DidIForgetOnSurface
 import com.didiforget.ui.theme.DidIForgetOnSurfaceMuted
-import com.didiforget.ui.theme.Dimens
+import com.didiforget.ui.theme.DidIForgetPrimary
+import com.didiforget.ui.theme.responsiveHorizontalPadding
+import com.didiforget.ui.theme.responsiveProgressRingSize
 import com.didiforget.viewmodel.ChecklistViewModel
 import com.didiforget.viewmodel.UiState
 
@@ -66,7 +70,14 @@ import com.didiforget.viewmodel.UiState
  *
  * `editMode` y `showDeleteDialog` siguen el mismo criterio: son estado de
  * presentación. En modo edición cada objeto muestra una papelera y aparece
- * "Eliminar actividad" (con confirmación) al final de la lista.
+ * un botón de eliminar actividad (con confirmación) al final de la lista.
+ *
+ * Nota de diseño (exploración "Liquid glass actual"): el texto "X de Y
+ * verificados"/"Editando" y el encabezado con el ícono y nombre de la
+ * actividad se reemplazaron por un [ProgressRing] (la misma información,
+ * de un vistazo) y un encabezado accesible invisible; el estado de edición
+ * ahora se lee en el cambio de ícono/color del botón "Editar" en vez de un
+ * rótulo de texto, igual que en el modelo.
  */
 @Composable
 fun ChecklistScreen(
@@ -107,7 +118,7 @@ fun ChecklistScreen(
     ) {
         ScalingLazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize().padding(horizontal = Dimens.ScreenHorizontalPadding)
+            modifier = Modifier.fillMaxSize().padding(horizontal = responsiveHorizontalPadding())
         ) {
             when (val current = state) {
                 is UiState.Loading -> item {
@@ -129,35 +140,39 @@ fun ChecklistScreen(
                 is UiState.Success -> {
                     val activity = current.data
                     item {
-                        val visual = visualForActivity(activity.name)
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            IconBadge(icon = visual.icon, tint = visual.tint, size = 44.dp, iconSize = 26.dp)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = activity.name,
-                                style = MaterialTheme.typography.body2,
-                                color = DidIForgetOnSurface,
-                                textAlign = TextAlign.Center,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
+                        // Encabezado accesible invisible: el nombre de la
+                        // actividad ya no se muestra como texto, pero sigue
+                        // anunciándose a TalkBack antes del aro de progreso.
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(0.dp)
+                                .semantics(mergeDescendants = true) {
+                                    heading()
+                                    contentDescription = activity.name
+                                }
+                        )
                     }
                     item {
-                        Text(
-                            text = if (editMode) {
-                                stringResource(R.string.checklist_editing)
-                            } else {
-                                stringResource(R.string.checklist_progress, activity.checkedItems, activity.totalItems)
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            style = MaterialTheme.typography.caption1,
-                            color = DidIForgetOnSurfaceMuted,
-                            textAlign = TextAlign.Center
-                        )
+                        val progressDescription = if (editMode) {
+                            stringResource(R.string.checklist_editing)
+                        } else {
+                            stringResource(R.string.checklist_progress, activity.checkedItems, activity.totalItems)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .semantics(mergeDescendants = true) { contentDescription = progressDescription },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            ProgressRing(
+                                done = activity.checkedItems,
+                                total = activity.totalItems,
+                                size = responsiveProgressRingSize()
+                            ) {
+                                ProgressRingLabel(done = activity.checkedItems, total = activity.totalItems)
+                            }
+                        }
                     }
                     items(activity.items, key = { it.id }) { item ->
                         ChecklistItemRow(
@@ -179,16 +194,19 @@ fun ChecklistScreen(
                     }
                     if (editMode) {
                         item {
-                            DestructiveButton(
-                                text = stringResource(R.string.checklist_delete_activity),
-                                icon = R.drawable.ic_trash,
-                                onClick = { showDeleteDialog = true }
-                            )
+                            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                DestructiveButton(
+                                    icon = R.drawable.ic_trash,
+                                    contentDescription = stringResource(R.string.checklist_delete_activity),
+                                    onClick = { showDeleteDialog = true }
+                                )
+                            }
                         }
                     } else if (activity.items.isNotEmpty()) {
                         item {
-                            PrimaryButton(
-                                text = stringResource(R.string.checklist_verify_button),
+                            PrimaryIconButton(
+                                icon = R.drawable.ic_check,
+                                contentDescription = stringResource(R.string.checklist_verify_button),
                                 onClick = { viewModel.verify() }
                             )
                         }
@@ -215,6 +233,7 @@ fun ChecklistScreen(
                             contentDescription = stringResource(
                                 if (editMode) R.string.checklist_done_editing else R.string.checklist_edit
                             ),
+                            tint = if (editMode) DidIForgetPrimary else DidIForgetOnSurface,
                             onClick = { editMode = !editMode }
                         )
                     }
