@@ -47,7 +47,7 @@ La app usa **MVVM** (Model-View-ViewModel) combinado con una separación en capa
 | Patrón | Dónde | Por qué |
 |---|---|---|
 | **Repository** | `data/repository` | Aísla el origen de los datos (Room) del resto de la app. El dominio solo conoce la interfaz. |
-| **Strategy** | `ai/AIService` + implementaciones | El proveedor de IA (OpenAI, Gemini, Claude, o ninguno) es intercambiable sin cambiar el resto del código. Hoy usamos `LocalKeywordAIService` como estrategia por defecto. |
+| **Strategy** | `ai/AIService` + implementaciones | El proveedor de IA (OpenAI, Gemini, Claude, o ninguno) es intercambiable sin cambiar el resto del código. Usa `RemoteAIService` (backend propio en `server/`) si `BACKEND_BASE_URL` está configurado en `local.properties`, o `LocalKeywordAIService` (sin red) si no. |
 | **Dependency Injection (manual, sin framework)** | `di/AppContainer` | Las clases reciben sus dependencias por constructor en vez de crearlas ellas mismas (Inversión de Control). Se eligió un contenedor manual en vez de Hilt/Koin para mantener el proyecto simple y 100% explícito, dado el tamaño de la app. |
 | **Use Case / Interactor** | `domain/usecase` | Cada acción de negocio ("generar checklist", "guardar actividad") es una clase con una sola función `invoke()`. Facilita testear la lógica sin UI ni base de datos real. |
 | **Sealed classes como máquina de estados** | `viewmodel/UiState.kt`, `data/model/CheckStatus.kt` | Modelan estados mutuamente excluyentes (`Loading`, `Success`, `Error` / `Pending`, `Complete`, `Incomplete`) de forma que el compilador obliga a manejar todos los casos (`when` exhaustivo). Evita banderas booleanas ambiguas. |
@@ -98,7 +98,7 @@ ActivityViewModel.generateChecklist(description)
 GenerateChecklistUseCase(description)
    │ delega en AIService.suggestItems(description)
    ▼
-AIService (Strategy: LocalKeywordAIService por defecto)
+AIService (Strategy: RemoteAIService → backend propio; LocalKeywordAIService si no hay backend configurado)
    │ devuelve Result<List<Item>>
    ▼
 ActivityViewModel
@@ -111,11 +111,19 @@ ChecklistScreen observa el StateFlow y se recompone
 ## 6. Por qué NO se usó (decisiones explícitas)
 
 * **Hilt/Koin:** un contenedor manual (`AppContainer`) es suficiente para ~10 clases y es más fácil de explicar/depurar en un proyecto académico.
-* **Backend remoto / autenticación:** decisión ya tomada en el README original — todo es local (Room) salvo la llamada puntual al servicio de IA.
+* **Backend remoto para todo lo demás:** la persistencia sigue siendo 100% local (Room) — no hace falta un backend para eso. El único backend que existe (`server/`) es un proxy mínimo para la llamada de IA: guarda la API key de OpenAI del lado del servidor para que nunca viaje dentro del APK (el repo es público y el APK se comparte — ver `server/README.md`).
 * **MVI completo (con Reducer/Intent):** MVVM + `StateFlow` + `sealed class UiState` da el mismo beneficio (estado unidireccional, inmutable) con menos ceremonia para el tamaño de esta app.
 
 ## 7. Cómo extender
 
-* **Agregar un proveedor de IA real:** crear una clase que implemente `AIService` (por ejemplo `OpenAIService`, `GeminiService`) y cambiar una línea en `AppContainer`. Nada más se toca.
+* **Cambiar de proveedor de IA:** ya existe `RemoteAIService` (llama al backend propio en `server/`, que a su vez llama a OpenAI). Para usar otro proveedor (Gemini, Claude...), solo hay que tocar `server/api/suggest.ts` — la app no se entera del cambio. Para un proveedor totalmente distinto del lado de la app, basta con otra clase que implemente `AIService` y una línea en `AppContainer`.
 * **Agregar una nueva pantalla:** crear el Composable en `ui/`, su `ViewModel` si necesita estado propio, y registrarla en `DidIForgetNavGraph.kt`.
 * **Agregar persistencia de un nuevo dato:** crear `Entity` + `Dao` en `data/database`, exponerlo por un `Repository`, y consumirlo desde un `UseCase`.
+
+## 8. Diseño visual (Claude Design)
+
+El diseño de referencia (colores, textos, íconos, estados de cada pantalla) vive en `docs/design/`:
+
+* `docs/design/DESIGN.md` — especificación exacta de cada pantalla.
+* `docs/design/IMPLEMENTATION_PLAN.md` — cómo implementarlo, feature por feature.
+* `docs/design/Did-I-forget-System-Design.pdf` y `docs/design/screens/*.png` — el diseño original y capturas por pantalla, para dárselas como contexto a Claude Code.
