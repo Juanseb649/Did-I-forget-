@@ -1,62 +1,56 @@
 package com.didiforget.ui.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Text
-import com.didiforget.ui.theme.Dimens
+import androidx.compose.ui.semantics.Role
 import com.didiforget.ui.theme.DidIForgetError
+import com.didiforget.ui.theme.Dimens
+import com.didiforget.ui.theme.liquidGlass
+import com.didiforget.ui.theme.squircle
 
 /**
- * Botón para acciones destructivas (eliminar). Es la única excepción a la
- * regla "una sola variante de botón" (DESIGN.md): sin relleno, con borde y
- * contenido en `Error`, para que no compita con [PrimaryButton].
+ * Botón de acción destructiva (eliminar), convertido a vidrio solo-ícono
+ * (exploración "Liquid glass actual"): mismo lenguaje visual que
+ * [PrimaryIconButton] / [SecondaryIconButton], pero con tinte y borde en
+ * `Error` para que siga leyéndose como una acción peligrosa pese a no tener
+ * texto. [contentDescription] conserva la etiqueta para TalkBack.
  */
 @Composable
 fun DestructiveButton(
-    text: String,
+    contentDescription: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    @DrawableRes icon: Int? = null
+    @DrawableRes icon: Int,
+    size: Dp = Dimens.MinTouchTarget
 ) {
-    Chip(
-        modifier = modifier.fillMaxWidth().heightIn(min = Dimens.MinTouchTarget),
-        onClick = onClick,
-        shape = RoundedCornerShape(50),
-        colors = ChipDefaults.outlinedChipColors(contentColor = DidIForgetError),
-        border = ChipDefaults.outlinedChipBorder(borderColor = DidIForgetError),
-        label = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (icon != null) {
-                    Icon(
-                        painter = painterResource(icon),
-                        contentDescription = null,
-                        tint = DidIForgetError,
-                        modifier = Modifier.size(Dimens.IconMedium)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                Text(text, style = MaterialTheme.typography.button, color = DidIForgetError)
-            }
-        }
-    )
+    val shape = squircle(percent = 50)
+    Box(
+        modifier = modifier
+            .size(size)
+            .liquidGlass(shape = shape, tint = DidIForgetError.copy(alpha = 0.16f))
+            .border(1.dp, SolidColor(DidIForgetError.copy(alpha = 0.4f)), shape)
+            .clickable(role = Role.Button, onClick = onClick)
+            .semantics { this.contentDescription = contentDescription },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            tint = DidIForgetError,
+            modifier = Modifier.size(size * 0.42f)
+        )
+    }
 }
